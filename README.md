@@ -19,8 +19,8 @@ A Balatro-style Spotify button for the game. It shows the current song and lets 
 ## Installation
 
 1. Install Lovely and Steamodded (see their pages).
-2. Download this repository (Code -> Download ZIP, or a release if available).
-3. Put the files in a folder inside `%AppData%\Balatro\Mods` (the folder name does not matter, for example `SpotifyBalatro`) so you end up with:
+2. Download `SpotifyBalatro-v1.1.0.zip` from the [latest release](../../releases/latest).
+3. Extract the zip into `%AppData%\Balatro\Mods` (paste `%AppData%\Balatro\Mods` into the Explorer address bar). You should end up with:
 
 ```
 %AppData%\Balatro\Mods\SpotifyBalatro\main.lua
@@ -30,6 +30,8 @@ A Balatro-style Spotify button for the game. It shows the current song and lets 
 ```
 
 4. Start Spotify, play something, start Balatro.
+
+If you download the source code instead of the release, put the files in a folder inside the `Mods` folder yourself (the folder name does not matter).
 
 ## Usage
 
