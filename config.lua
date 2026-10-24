@@ -1,0 +1,15 @@
+return {
+    show = true,
+    corner = 1,
+    size = 1.0,
+    opacity = 1.0,
+    accent = 1,
+    popup = true,
+    popup_time = 5,
+    sounds = true,
+    hotkeys = false,
+    show_bar = true,
+    show_time = true,
+    scroll = true,
+    open = false,
+}

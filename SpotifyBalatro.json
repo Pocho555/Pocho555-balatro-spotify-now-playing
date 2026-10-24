@@ -1,0 +1,12 @@
+{
+  "id": "SpotifyBalatro",
+  "name": "Spotify Now Playing",
+  "author": ["Pocho555"],
+  "description": "In-game Spotify button in Balatro style: shows the current song and controls skip, previous and play/pause. Customizable in the mod menu under Config.",
+  "prefix": "spotbal",
+  "main_file": "main.lua",
+  "priority": 0,
+  "badge_colour": "1DB954",
+  "badge_text_colour": "FFFFFF",
+  "version": "1.1.0"
+}
