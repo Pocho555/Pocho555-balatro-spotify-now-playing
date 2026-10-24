@@ -6,8 +6,20 @@ local function log(msg)
 end
 
 local dirname = ((mod and mod.path) or ""):match("([^/\\]+)[/\\]*$") or "SpotifyBalatro"
-local REL = "Mods/" .. dirname .. "/"
-local ABS = (love.filesystem.getSaveDirectory() .. "/Mods/" .. dirname):gsub("\\", "/")
+local fs = SMODS.NFS or NFS
+local ABS
+if mod and mod.path then
+    ABS = (mod.path:gsub("\\", "/"):gsub("/+$", ""))
+else
+    ABS = (love.filesystem.getSaveDirectory() .. "/Mods/" .. dirname):gsub("\\", "/")
+end
+local STATE_FILE = ABS .. "/state.txt"
+local CMD_FILE = ABS .. "/cmd.txt"
+
+local function read_file(path)
+    local ok, data = pcall(fs.read, path)
+    if ok and type(data) == "string" then return data end
+end
 
 local DEFAULTS = {
     show = true, corner = 1, size = 1.0, opacity = 1.0, accent = 1,
@@ -39,23 +51,30 @@ local swallow = nil
 local started_at = love.timer.getTime()
 
 local function launch_helper()
-    love.filesystem.remove(REL .. "state.txt")
-    love.filesystem.remove(REL .. "cmd.txt")
+    pcall(fs.remove, STATE_FILE)
+    pcall(fs.remove, CMD_FILE)
     pcall(ffi.cdef, "unsigned long GetCurrentProcessId(void);")
-    pcall(ffi.cdef, "void* ShellExecuteA(void* hwnd, const char* op, const char* file, const char* params, const char* dir, int show);")
+    pcall(ffi.cdef, "int MultiByteToWideChar(unsigned int cp, unsigned long flags, const char* s, int len, wchar_t* out, int outlen);")
+    pcall(ffi.cdef, "void* ShellExecuteW(void* hwnd, const wchar_t* op, const wchar_t* file, const wchar_t* params, const wchar_t* dir, int show);")
+    local function wide(s)
+        local n = ffi.C.MultiByteToWideChar(65001, 0, s, -1, nil, 0)
+        local buf = ffi.new("wchar_t[?]", n)
+        ffi.C.MultiByteToWideChar(65001, 0, s, -1, buf, n)
+        return buf
+    end
     local ok, err = pcall(function()
         local shell = ffi.load("shell32")
         local pid = ffi.C.GetCurrentProcessId()
         local params = string.format(
             '-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File "%s/helper.ps1" -GamePid %d -Dir "%s"',
             ABS, tonumber(pid), ABS)
-        shell.ShellExecuteA(nil, "open", "powershell.exe", params, nil, 0)
+        shell.ShellExecuteW(nil, wide("open"), wide("powershell.exe"), wide(params), nil, 0)
     end)
     if not ok then log("Helper konnte nicht gestartet werden: " .. tostring(err)) end
 end
 
 local function read_state()
-    local data = love.filesystem.read(REL .. "state.txt")
+    local data = read_file(STATE_FILE)
     if not data then return end
     local t = {}
     for k, v in data:gmatch("(%w+)=([^\n]*)") do t[k] = v end
@@ -76,7 +95,7 @@ end
 
 local function send(cmd)
     if S.status == "none" then return end
-    love.filesystem.write(REL .. "cmd.txt", cmd)
+    pcall(fs.write, CMD_FILE, cmd)
     if cmd == "toggle" then S.status = (S.status == "playing") and "paused" or "playing" end
     if cmd == "next" or cmd == "prev" then S.pos = 0; S.read_at = love.timer.getTime() end
 end
